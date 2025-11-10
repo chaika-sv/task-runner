@@ -1,0 +1,85 @@
+package com.chaikasv.tasksystem.taskrunner.registry;
+
+import com.chaikasv.tasksystem.taskrunner.annotation.Job;
+import com.chaikasv.tasksystem.taskrunner.model.TaskInfo;
+import org.springframework.aop.support.AopUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Component;
+
+import jakarta.annotation.PostConstruct;
+import java.lang.reflect.Method;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * Реестр всех задач, помеченных аннотацией {@link com.chaikasv.tasksystem.taskrunner.annotation.Job}.
+ * Отвечает за автоматический поиск, регистрацию и хранение метаданных о задачах.
+ * Используется для получения списка доступных задач и их последующего выполнения.
+ */
+@Component
+public class TaskRegistry {
+
+    private final ApplicationContext ctx;
+    private final Map<String, TaskInfo> tasks = new ConcurrentHashMap<>();
+
+    @Value("${taskrunner.scan-package}")
+    private String scanPackage; // из application.properties
+
+    private static final Logger log = LoggerFactory.getLogger(TaskRegistry.class);
+
+    public TaskRegistry(ApplicationContext ctx) {
+        this.ctx = ctx;
+    }
+
+    @PostConstruct
+    public void init() {
+
+        String[] beanNames = ctx.getBeanDefinitionNames();
+
+        // Сканируем все бины в контексте
+        for (String beanName : beanNames) {
+
+            if (beanName.equals("taskRegistry")) continue; // пропустить себя
+
+            Object bean = ctx.getBean(beanName);
+            Class<?> targetClass = AopUtils.getTargetClass(bean);
+
+            // Пропускаем всё, что не в пакете com.chaikasv.tasksystem.taskrunner.tasks
+            if (!targetClass.getPackageName().startsWith(scanPackage)) {
+                continue;
+            }
+
+            // Ищем только методы помеченные аннотацией Job
+            for (Method method : targetClass.getDeclaredMethods()) {
+                Job ann = method.getAnnotation(Job.class);
+                if (ann != null) {
+                    String name = ann.name().isEmpty() ? method.getName() : ann.name();
+                    String desc = ann.description();
+                    // optional: проверка на дублирующиеся имена
+                    if (tasks.containsKey(name)) {
+                        throw new IllegalStateException("Duplicate job name detected: " + name);
+                    }
+                    // метод может быть приватным — сделаем доступным
+                    method.setAccessible(true);
+                    TaskInfo ti = new TaskInfo(name, desc, bean, method);
+                    tasks.put(name, ti);
+                    log.info("[TaskRegistry] Registered job: {}", ti);
+                }
+            }
+        }
+        log.info("[TaskRegistry] Total jobs = {}", tasks.size());
+    }
+
+    public Optional<TaskInfo> findByName(String name) {
+        return Optional.ofNullable(tasks.get(name));
+    }
+
+    public Collection<TaskInfo> listAll() {
+        return Collections.unmodifiableCollection(tasks.values());
+    }
+
+}
