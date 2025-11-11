@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -37,18 +38,18 @@ public class JobExecutor {
     /**
      * Асинхронно запускает задачу — метод возвращает сразу, не дожидаясь завершения.
      */
-    public void execute(String taskName) {
+    public void runAsync(String taskName, Object... args) {
         registry.getTask(taskName)
                 .ifPresentOrElse(
-                        info -> pool.submit(() -> runTask(info)),
-                        () -> log.warn("[JobExecutor] Задача '{}' не найдена в реестре", taskName)
+                        info -> pool.submit(() -> runTask(info, args)),
+                        () -> log.warn("[JobExecutor] Задача '{}' не найдена", taskName)
                 );
     }
 
     /**
-     * Асинхронно запускает задачу и возвращает Future, чтобы можно было дождаться завершения или обработать ошибки.
+     * Асинхронно запускает задачу и возвращает Future, чтобы можно было дождаться завершения или обработать результат.
      */
-    public Future<?> executeAsync(String taskName) {
+    public Future<?> runAsyncWithResult(String taskName, Object... args) {
         Optional<TaskInfo> opt = registry.getTask(taskName);
         if (opt.isEmpty()) {
             log.warn("[JobExecutor] Задача '{}' не найдена в реестре", taskName);
@@ -56,30 +57,30 @@ public class JobExecutor {
         }
 
         TaskInfo info = opt.get();
-        return pool.submit(() -> runTask(info));
+        return pool.submit(() -> runTask(info, args));
     }
 
     /**
      * Синхронно выполняет задачу (текущий поток ждёт завершения метода).
      */
-    public void executeSync(String taskName) {
+    public void runSync(String taskName, Object... args) {
         registry.getTask(taskName)
                 .ifPresentOrElse(
-                        this::runTask,
+                        info -> runTask(info, args),
                         () -> log.warn("[JobExecutor] Задача '{}' не найдена в реестре", taskName)
                 );
     }
 
     /**
-     * Внутренний метод, вызывающий саму задачу через Reflection API.
+     * Универсальный метод выполнения задачи с передачей аргументов.
      */
-    private void runTask(TaskInfo info) {
+    private void runTask(TaskInfo info, Object... args) {
         try {
-            log.info("[JobExecutor] Выполняю задачу: {}", info.getName());
-            info.getMethod().invoke(info.getBean());
-            log.info("[JobExecutor] Задача '{}' успешно выполнена", info.getName());
+            log.info("[JobExecutor] Выполняю задачу: {} с аргументами {}", info.getName(), Arrays.toString(args));
+            info.getMethod().invoke(info.getBean(), args);
+            log.info("[JobExecutor] Задача '{}' завершена", info.getName());
         } catch (InvocationTargetException | IllegalAccessException e) {
-            log.error("[JobExecutor] Ошибка при выполнении задачи '{}'", info.getName(), e);
+            log.error("[JobExecutor] Ошибка при выполнении '{}'", info.getName(), e);
         }
     }
 
