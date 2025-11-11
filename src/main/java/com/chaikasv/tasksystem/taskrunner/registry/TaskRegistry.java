@@ -43,15 +43,19 @@ public class TaskRegistry {
         // Сканируем все бины в контексте
         for (String beanName : beanNames) {
 
-            if (beanName.equals("taskRegistry")) continue; // пропустить себя
+            // Пропускаем - там точно нет джобов
+            if (beanName.equals("taskRegistry")
+                    || beanName.equals("jobExecutor")
+                    || beanName.equals("jobController")
+            )
+                continue;
 
             Object bean = ctx.getBean(beanName);
             Class<?> targetClass = AopUtils.getTargetClass(bean);
 
             // Пропускаем всё, что не в пакете com.chaikasv.tasksystem.taskrunner.tasks
-            if (!targetClass.getPackageName().startsWith(scanPackage)) {
+            if (!targetClass.getPackageName().startsWith(scanPackage))
                 continue;
-            }
 
             // Ищем только методы помеченные аннотацией Job
             for (Method method : targetClass.getDeclaredMethods()) {
@@ -74,11 +78,11 @@ public class TaskRegistry {
         log.info("[TaskRegistry] Total jobs = {}", tasks.size());
     }
 
-    public Optional<TaskInfo> findByName(String name) {
+    public Optional<TaskInfo> getTask(String name) {
         return Optional.ofNullable(tasks.get(name));
     }
 
-    public Collection<TaskInfo> listAll() {
+    public Collection<TaskInfo> getAll() {
         return Collections.unmodifiableCollection(tasks.values());
     }
 
