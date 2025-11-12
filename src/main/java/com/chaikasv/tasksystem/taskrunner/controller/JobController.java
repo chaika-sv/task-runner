@@ -3,9 +3,11 @@ package com.chaikasv.tasksystem.taskrunner.controller;
 import com.chaikasv.tasksystem.taskrunner.runner.JobExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.concurrent.Future;
 
 /**
  * REST-контроллер для управления задачами.
@@ -25,13 +27,17 @@ public class JobController {
 
     /**
      * Запуск задачи по имени.
-     * Пример: POST /api/jobs/run/sayHello
+     * Примеры:
+     *   POST /api/jobs/run/sayHello
+     *   POST /api/jobs/run/sayHello?withResult=true
      */
     @PostMapping("/run/{name}")
-    public String runJob(
+    public ResponseEntity<String> runJob(
             @PathVariable String name,
             @RequestParam(required = false) List<String> args,
-            @RequestBody(required = false) List<String> bodyArgs) {
+            @RequestBody(required = false) List<String> bodyArgs,
+            @RequestParam(defaultValue = "false") boolean withResult
+    ) {
 
         // Если отправлять запрос через JSON-тело (например, ["Сергей"]), то агрументы попадают в @RequestBody (bodyArgs)
         // Если отправлять запрос через query-параметры (например, ?args=Сергей), то агрументы попадают в @RequestParam (args)
@@ -40,10 +46,27 @@ public class JobController {
                 ? bodyArgs
                 : (args != null ? args : List.of());
 
-        log.info("[JobController] Запрос на запуск задачи '{}' с аргументами {}", name, finalArgs);
-        executor.runAsync(name, finalArgs.toArray());
-        return "Задача '" + name + "' запущена";
+        log.info("[JobController] Запрос на запуск задачи '{}' с аргументами {} (withResult={})",
+                name, finalArgs, withResult);
+
+        try {
+            if (withResult) {
+                // запускаем с ожиданием результата
+                Future<?> future = executor.runAsyncWithResult(name, finalArgs.toArray());
+                Object result = future.get();
+                return ResponseEntity.ok("Задача '" + name + "' завершена. Результат: " + result);
+            } else {
+                // запускаем без ожидания
+                executor.runAsync(name, finalArgs.toArray());
+                return ResponseEntity.ok("Задача '" + name + "' запущена");
+            }
+        } catch (Exception e) {
+            log.error("[JobController] Ошибка при запуске задачи '{}'", name, e);
+            return ResponseEntity.internalServerError()
+                    .body("Ошибка при выполнении задачи '" + name + "': " + e.getMessage());
+        }
     }
+
 
 
     /**

@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
@@ -39,48 +40,78 @@ public class JobExecutor {
      * Асинхронно запускает задачу — метод возвращает сразу, не дожидаясь завершения.
      */
     public void runAsync(String taskName, Object... args) {
-        registry.getTask(taskName)
-                .ifPresentOrElse(
-                        info -> pool.submit(() -> runTask(info, args)),
-                        () -> log.warn("[JobExecutor] Задача '{}' не найдена", taskName)
-                );
+        executeInternal(
+                ExecutionMode.ASYNC,
+                taskName,
+                args
+        );
     }
 
     /**
      * Асинхронно запускает задачу и возвращает Future, чтобы можно было дождаться завершения или обработать результат.
      */
     public Future<?> runAsyncWithResult(String taskName, Object... args) {
-        Optional<TaskInfo> opt = registry.getTask(taskName);
-        if (opt.isEmpty()) {
-            log.warn("[JobExecutor] Задача '{}' не найдена в реестре", taskName);
-            return CompletableFuture.failedFuture(new IllegalArgumentException("Task not found: " + taskName));
-        }
-
-        TaskInfo info = opt.get();
-        return pool.submit(() -> runTask(info, args));
+        return executeInternal(
+                ExecutionMode.ASYNC_WITH_RESULT,
+                taskName,
+                args
+        ).orElse(CompletableFuture.failedFuture(new IllegalArgumentException("Task not found: " + taskName)));
     }
 
     /**
      * Синхронно выполняет задачу (текущий поток ждёт завершения метода).
      */
     public void runSync(String taskName, Object... args) {
-        registry.getTask(taskName)
-                .ifPresentOrElse(
-                        info -> runTask(info, args),
-                        () -> log.warn("[JobExecutor] Задача '{}' не найдена в реестре", taskName)
-                );
+        executeInternal(
+                ExecutionMode.SYNC,
+                taskName,
+                args
+        );
     }
 
+
     /**
-     * Универсальный метод выполнения задачи с передачей аргументов.
+     * Универсальный внутренний метод для запуска задач.
      */
-    private void runTask(TaskInfo info, Object... args) {
+    private Optional<Future<?>> executeInternal(ExecutionMode mode, String taskName, Object... args) {
+        Optional<TaskInfo> opt = registry.getTask(taskName);
+
+        if (opt.isEmpty()) {
+            log.warn("[JobExecutor] Задача '{}' не найдена", taskName);
+            return Optional.empty();
+        }
+
+        TaskInfo info = opt.get();
+
+        switch (mode) {
+            case SYNC -> {
+                runTask(info, args);
+                return Optional.empty();
+            }
+            case ASYNC -> {
+                pool.submit(() -> runTask(info, args));
+                return Optional.empty();
+            }
+            case ASYNC_WITH_RESULT -> {
+                return Optional.of(pool.submit(() -> runTask(info, args)));
+            }
+            default -> throw new IllegalArgumentException("Неизвестный режим выполнения: " + mode);
+        }
+    }
+
+
+
+
+    private Object runTask(TaskInfo info, Object... args) {
         try {
-            log.info("[JobExecutor] Выполняю задачу: {} с аргументами {}", info.getName(), Arrays.toString(args));
-            info.getMethod().invoke(info.getBean(), args);
-            log.info("[JobExecutor] Задача '{}' завершена", info.getName());
+            log.info("[JobExecutor] Выполняю задачу '{}' с аргументами {}", info.getName(), Arrays.toString(args));
+            Object[] convertedArgs = convertArguments(info.getMethod(), args);
+            Object result = info.getMethod().invoke(info.getBean(), convertedArgs);
+            log.info("[JobExecutor] Задача '{}' завершена, результат: {}", info.getName(), result);
+            return result;
         } catch (InvocationTargetException | IllegalAccessException e) {
             log.error("[JobExecutor] Ошибка при выполнении '{}'", info.getName(), e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -96,6 +127,38 @@ public class JobExecutor {
         return registry.getAll()
                 .stream()
                 .collect(Collectors.toMap(TaskInfo::getName, TaskInfo::getDescription));
+    }
+
+
+
+    private Object[] convertArguments(Method method, Object[] args) {
+        Class<?>[] paramTypes = method.getParameterTypes();
+
+        if (args.length != paramTypes.length) {
+            throw new IllegalArgumentException(
+                    "Неверное количество аргументов: ожидается " + paramTypes.length + ", получено " + args.length);
+        }
+
+        Object[] converted = new Object[args.length];
+
+        for (int i = 0; i < args.length; i++) {
+            String value = args[i].toString();
+            Class<?> type = paramTypes[i];
+
+            if (type == String.class) {
+                converted[i] = value;
+            } else if (type == Integer.class || type == int.class) {
+                converted[i] = Integer.parseInt(value);
+            } else if (type == Boolean.class || type == boolean.class) {
+                converted[i] = Boolean.parseBoolean(value);
+            } else if (type == Double.class || type == double.class) {
+                converted[i] = Double.parseDouble(value);
+            } else {
+                throw new IllegalArgumentException("Неподдерживаемый тип параметра: " + type.getSimpleName());
+            }
+        }
+
+        return converted;
     }
 
 }

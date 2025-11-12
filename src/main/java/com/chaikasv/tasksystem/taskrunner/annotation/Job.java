@@ -18,4 +18,10 @@ public @interface Job {
      * Краткое описание задачи.
      */
     String description() default "";
+
+    /**
+     * Параметры запуска задачи.
+     */
+    JobParam[] params() default {};
 }
+
