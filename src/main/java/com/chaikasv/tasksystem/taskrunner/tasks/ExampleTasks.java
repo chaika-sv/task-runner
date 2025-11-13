@@ -12,6 +12,17 @@ public class ExampleTasks {
         System.out.println("Hello from job! time=" + System.currentTimeMillis());
     }
 
+    @Job(name = "test17", description = "Tst 17")
+    public void test17() {
+        System.out.println("Test 17");
+    }
+
+    @Job(name = "test2min", description = "Tst 2 min")
+    public void test2min() {
+        System.out.println("Test 2 min");
+    }
+
+
     @Job(name = "greetUser", description = "Приветствует пользователя по имени")
     public void greet(String name) {
         System.out.println("Hi, " + name + "!");

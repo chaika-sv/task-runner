@@ -37,7 +37,7 @@ public class JobExecutor {
     }
 
     /**
-     * Асинхронно запускает задачу — метод возвращает сразу, не дожидаясь завершения.
+     * Асинхронно запускает задачу и не ждёт завершения.
      */
     public void runAsync(String taskName, Object... args) {
         executeInternal(
@@ -130,7 +130,10 @@ public class JobExecutor {
     }
 
 
-
+    /**
+     * Смотрит сигнатуру метода method и сверяет её со списком переданных аргументов args.
+     * Затем пытается конвертировать переданные аргументы в нужные типы.
+     */
     private Object[] convertArguments(Method method, Object[] args) {
         Class<?>[] paramTypes = method.getParameterTypes();
 
