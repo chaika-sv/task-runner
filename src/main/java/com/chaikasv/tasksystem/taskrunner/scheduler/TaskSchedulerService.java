@@ -86,6 +86,11 @@ public class TaskSchedulerService {
         }
     }
 
+
+    public void registerFromEntity(ScheduleEntity s) {
+        registerTask(s.getTaskName(), s.getCron());
+    }
+
     /**
      * Возвращает список запланированных задач.
      */
@@ -97,5 +102,7 @@ public class TaskSchedulerService {
     }
 
      */
+
+
 
 }

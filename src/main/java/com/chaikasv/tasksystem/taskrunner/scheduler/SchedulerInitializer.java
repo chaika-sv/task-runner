@@ -1,19 +1,31 @@
 package com.chaikasv.tasksystem.taskrunner.scheduler;
 
 import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class SchedulerInitializer {
 
-    @Autowired
-    private TaskSchedulerService scheduler;
+    private final TaskSchedulerService scheduler;
+    private final ScheduleRepository scheduleRepository;
+
+    public SchedulerInitializer(TaskSchedulerService scheduler,
+                                ScheduleRepository scheduleRepository) {
+        this.scheduler = scheduler;
+        this.scheduleRepository = scheduleRepository;
+    }
 
     @PostConstruct
     public void init() {
-        scheduler.registerTask("test17", "0 55 16 * * *");
-        scheduler.registerTask("test2min", "0 */2 * * * *");
+
+        var list = scheduleRepository.findAll();
+
+        for (ScheduleEntity s : list) {
+            scheduler.registerFromEntity(s);
+        }
     }
 }
+
+//scheduler.registerTask("test17", "0 55 16 * * *");
+//scheduler.registerTask("test2min", "0 */2 * * * *");
+
