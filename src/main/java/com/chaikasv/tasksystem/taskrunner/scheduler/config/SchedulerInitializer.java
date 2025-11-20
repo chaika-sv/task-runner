@@ -1,5 +1,8 @@
-package com.chaikasv.tasksystem.taskrunner.scheduler;
+package com.chaikasv.tasksystem.taskrunner.scheduler.config;
 
+import com.chaikasv.tasksystem.taskrunner.scheduler.entity.ScheduleEntity;
+import com.chaikasv.tasksystem.taskrunner.scheduler.repository.ScheduleRepository;
+import com.chaikasv.tasksystem.taskrunner.scheduler.service.TaskSchedulerService;
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
 
@@ -18,6 +21,9 @@ public class SchedulerInitializer {
     @PostConstruct
     public void init() {
 
+        // scheduler.registerTask("test17", "0 55 16 * * *");
+        // scheduler.registerTask("test2min", "0 */2 * * * *");
+
         var list = scheduleRepository.findAll();
 
         for (ScheduleEntity s : list) {
@@ -26,6 +32,5 @@ public class SchedulerInitializer {
     }
 }
 
-//scheduler.registerTask("test17", "0 55 16 * * *");
-//scheduler.registerTask("test2min", "0 */2 * * * *");
+
 

@@ -1,4 +1,4 @@
-package com.chaikasv.tasksystem.taskrunner.scheduler;
+package com.chaikasv.tasksystem.taskrunner.scheduler.service;
 
 import org.springframework.scheduling.support.CronExpression;
 

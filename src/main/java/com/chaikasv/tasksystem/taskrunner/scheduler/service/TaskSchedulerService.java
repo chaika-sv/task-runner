@@ -1,8 +1,10 @@
-package com.chaikasv.tasksystem.taskrunner.scheduler;
+package com.chaikasv.tasksystem.taskrunner.scheduler.service;
 
 
 import com.chaikasv.tasksystem.taskrunner.registry.TaskRegistry;
 import com.chaikasv.tasksystem.taskrunner.runner.JobExecutor;
+import com.chaikasv.tasksystem.taskrunner.scheduler.service.ScheduledTask;
+import com.chaikasv.tasksystem.taskrunner.scheduler.entity.ScheduleEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.support.CronExpression;
@@ -20,7 +22,7 @@ public class TaskSchedulerService {
 
     // Отдельный пул для планировщика: внутри него крутится фоновый цикл,
     // который периодически проверяет расписание и запускает задачи.
-    // Сами задачи выполняются в отдельном пуле, определённом в JobExecutor.
+    // Сами задачи выполняются в другом пуле, определённом в JobExecutor.
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
     private final JobExecutor jobExecutor;

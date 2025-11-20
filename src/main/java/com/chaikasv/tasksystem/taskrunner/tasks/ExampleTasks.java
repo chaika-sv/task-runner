@@ -17,6 +17,12 @@ public class ExampleTasks {
         System.out.println("Test 17");
     }
 
+    @Job(name = "test12")
+    public void test12() {
+        System.out.println("Test 12");
+    }
+
+
     @Job(name = "test2min", description = "Tst 2 min")
     public void test2min() {
         System.out.println("Test 2 min");
