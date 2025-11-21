@@ -1,4 +1,4 @@
-package com.chaikasv.tasksystem.taskrunner.runner;
+package com.chaikasv.tasksystem.taskrunner.runner.service;
 
 import com.chaikasv.tasksystem.taskrunner.model.TaskInfo;
 import com.chaikasv.tasksystem.taskrunner.registry.TaskRegistry;
@@ -23,16 +23,16 @@ import java.util.stream.Collectors;
  * Используется как центральная точка запуска job'ов из внешних источников (REST, планировщик и т.д.).
  */
 @Component
-public class JobExecutor {
+public class JobExecutorService {
 
-    private static final Logger log = LoggerFactory.getLogger(JobExecutor.class);
+    private static final Logger log = LoggerFactory.getLogger(JobExecutorService.class);
 
     private final TaskRegistry registry;
 
     // пул потоков для параллельного выполнения задач
     private final ExecutorService pool = Executors.newFixedThreadPool(4);
 
-    public JobExecutor(TaskRegistry registry) {
+    public JobExecutorService(TaskRegistry registry) {
         this.registry = registry;
     }
 
@@ -101,8 +101,7 @@ public class JobExecutor {
 
 
 
-
-    private Object runTask(TaskInfo info, Object... args) {
+    public Object runTask(TaskInfo info, Object... args) {
         try {
             log.info("[JobExecutor] Выполняю задачу '{}' с аргументами {}", info.getName(), Arrays.toString(args));
             Object[] convertedArgs = convertArguments(info.getMethod(), args);

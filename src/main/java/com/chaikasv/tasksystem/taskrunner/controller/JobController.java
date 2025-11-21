@@ -1,6 +1,6 @@
 package com.chaikasv.tasksystem.taskrunner.controller;
 
-import com.chaikasv.tasksystem.taskrunner.runner.JobExecutor;
+import com.chaikasv.tasksystem.taskrunner.runner.service.JobExecutorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -19,9 +19,9 @@ public class JobController {
 
     private static final Logger log = LoggerFactory.getLogger(JobController.class);
 
-    private final JobExecutor executor;
+    private final JobExecutorService executor;
 
-    public JobController(JobExecutor executor) {
+    public JobController(JobExecutorService executor) {
         this.executor = executor;
     }
 

@@ -45,7 +45,7 @@ public class TaskRegistry {
 
             // Пропускаем - там точно нет джобов
             if (beanName.equals("taskRegistry")
-                    || beanName.equals("jobExecutor")
+                    || beanName.equals("jobExecutorService")
                     || beanName.equals("jobController")
                     || beanName.equals("taskSchedulerService")
                     || beanName.equals("schedulerInitializer")

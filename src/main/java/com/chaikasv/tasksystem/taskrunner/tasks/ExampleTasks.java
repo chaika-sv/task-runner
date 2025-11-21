@@ -2,6 +2,7 @@ package com.chaikasv.tasksystem.taskrunner.tasks;
 
 import com.chaikasv.tasksystem.taskrunner.annotation.Job;
 import com.chaikasv.tasksystem.taskrunner.annotation.JobParam;
+import com.chaikasv.tasksystem.taskrunner.aop.Logged;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -17,12 +18,13 @@ public class ExampleTasks {
         System.out.println("Test 17");
     }
 
-    @Job(name = "test12")
+    @Job(name = "Тестовая задача")
     public void test12() {
         System.out.println("Test 12");
     }
 
 
+    @Logged
     @Job(name = "test2min", description = "Tst 2 min")
     public void test2min() {
         System.out.println("Test 2 min");

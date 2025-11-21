@@ -1,4 +1,4 @@
-package com.chaikasv.tasksystem.taskrunner.runner;
+package com.chaikasv.tasksystem.taskrunner.runner.service;
 
 public enum ExecutionMode {
     SYNC,          // Выполнять в текущем потоке

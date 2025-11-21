@@ -2,8 +2,7 @@ package com.chaikasv.tasksystem.taskrunner.scheduler.service;
 
 
 import com.chaikasv.tasksystem.taskrunner.registry.TaskRegistry;
-import com.chaikasv.tasksystem.taskrunner.runner.JobExecutor;
-import com.chaikasv.tasksystem.taskrunner.scheduler.service.ScheduledTask;
+import com.chaikasv.tasksystem.taskrunner.runner.service.JobExecutorService;
 import com.chaikasv.tasksystem.taskrunner.scheduler.entity.ScheduleEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,11 +24,11 @@ public class TaskSchedulerService {
     // Сами задачи выполняются в другом пуле, определённом в JobExecutor.
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
-    private final JobExecutor jobExecutor;
+    private final JobExecutorService jobExecutor;
 
     private static final Logger log = LoggerFactory.getLogger(TaskRegistry.class);
 
-    public TaskSchedulerService(JobExecutor jobExecutor) {
+    public TaskSchedulerService(JobExecutorService jobExecutor) {
         this.jobExecutor = jobExecutor;
         startSchedulerLoop();
     }
