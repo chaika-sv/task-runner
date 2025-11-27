@@ -3,6 +3,7 @@ package com.chaikasv.tasksystem.taskrunner.tasks;
 import com.chaikasv.tasksystem.taskrunner.annotation.Job;
 import com.chaikasv.tasksystem.taskrunner.annotation.JobParam;
 import com.chaikasv.tasksystem.taskrunner.aop.Logged;
+import lombok.SneakyThrows;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -54,26 +55,14 @@ public class ExampleTasks {
 
 
 
+    @SneakyThrows
     @Job(name = "sleepTask", description = "Длительная задача для тестирования асинхронного вызова")
     public void sleepTask() {
-        System.out.println("[LongTask] The task has been started, waiting 1 minute...");
-        try {
-            for (int i = 1; i <= 6; i++) {
-                Thread.sleep(10_000); // по 10 секунд, чтобы видеть прогресс
-                System.out.println("[LongTask] " + (i * 10) + " seconds");
-            }
-        } catch (InterruptedException e) {
-            System.out.println("[LongTask] The task has been interrupted");
-            Thread.currentThread().interrupt();
+        for (int i = 1; i <= 6; i++) {
+            Thread.sleep(10_000); // по 10 секунд, чтобы видеть прогресс
+            System.out.println("[LongTask] " + (i * 10) + " seconds");
         }
-        System.out.println("[LongTask] The task has been completed");
     }
-
-    @Job
-    public void unnamedJob() {
-        System.out.println("unnamed job executed");
-    }
-
 
 
 }

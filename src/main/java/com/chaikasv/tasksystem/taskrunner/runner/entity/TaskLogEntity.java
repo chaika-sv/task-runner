@@ -11,7 +11,7 @@ public class TaskLogEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long sessionId;
+    private String sessionId;
 
     private String taskName;
 
@@ -34,7 +34,7 @@ public class TaskLogEntity {
     public TaskLogEntity() {}
 
     public TaskLogEntity(
-            Long sessionId,
+            String sessionId,
             String taskName,
             String eventName,
             LocalDateTime eventDate,
@@ -53,13 +53,15 @@ public class TaskLogEntity {
         this.isAutoStart = isAutoStart;
     }
 
+
+
     // ----- getters -----
 
     public Long getId() {
         return id;
     }
 
-    public Long getSessionId() {
+    public String getSessionId() {
         return sessionId;
     }
 
@@ -97,7 +99,7 @@ public class TaskLogEntity {
         this.id = id;
     }
 
-    public void setSessionId(Long sessionId) {
+    public void setSessionId(String sessionId) {
         this.sessionId = sessionId;
     }
 
