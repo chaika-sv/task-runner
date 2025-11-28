@@ -1,6 +1,6 @@
 package com.chaikasv.tasksystem.taskrunner.controller;
 
-import com.chaikasv.tasksystem.taskrunner.runner.service.JobExecutorService;
+import com.chaikasv.tasksystem.taskrunner.runner.JobExecutorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;

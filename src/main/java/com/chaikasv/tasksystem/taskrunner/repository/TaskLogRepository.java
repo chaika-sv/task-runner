@@ -1,6 +1,6 @@
-package com.chaikasv.tasksystem.taskrunner.runner.repository;
+package com.chaikasv.tasksystem.taskrunner.repository;
 
-import com.chaikasv.tasksystem.taskrunner.runner.entity.TaskLogEntity;
+import com.chaikasv.tasksystem.taskrunner.entity.TaskLogEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

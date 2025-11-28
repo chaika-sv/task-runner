@@ -1,8 +1,8 @@
-package com.chaikasv.tasksystem.taskrunner.scheduler.config;
+package com.chaikasv.tasksystem.taskrunner.config;
 
-import com.chaikasv.tasksystem.taskrunner.scheduler.entity.ScheduleEntity;
-import com.chaikasv.tasksystem.taskrunner.scheduler.repository.ScheduleRepository;
-import com.chaikasv.tasksystem.taskrunner.scheduler.service.TaskSchedulerService;
+import com.chaikasv.tasksystem.taskrunner.entity.ScheduleEntity;
+import com.chaikasv.tasksystem.taskrunner.repository.ScheduleRepository;
+import com.chaikasv.tasksystem.taskrunner.scheduler.TaskSchedulerService;
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
 

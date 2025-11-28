@@ -55,9 +55,8 @@ public class ExampleTasks {
 
 
 
-    @SneakyThrows
     @Job(name = "sleepTask", description = "Длительная задача для тестирования асинхронного вызова")
-    public void sleepTask() {
+    public void sleepTask() throws InterruptedException {
         for (int i = 1; i <= 6; i++) {
             Thread.sleep(10_000); // по 10 секунд, чтобы видеть прогресс
             System.out.println("[LongTask] " + (i * 10) + " seconds");

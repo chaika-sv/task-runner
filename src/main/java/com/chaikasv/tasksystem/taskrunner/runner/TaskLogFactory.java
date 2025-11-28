@@ -1,7 +1,7 @@
-package com.chaikasv.tasksystem.taskrunner.runner.service;
+package com.chaikasv.tasksystem.taskrunner.runner;
 
 import com.chaikasv.tasksystem.taskrunner.config.ApplicationSession;
-import com.chaikasv.tasksystem.taskrunner.runner.entity.TaskLogEntity;
+import com.chaikasv.tasksystem.taskrunner.entity.TaskLogEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;

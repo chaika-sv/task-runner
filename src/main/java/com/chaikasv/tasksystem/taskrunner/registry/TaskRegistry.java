@@ -1,7 +1,8 @@
 package com.chaikasv.tasksystem.taskrunner.registry;
 
 import com.chaikasv.tasksystem.taskrunner.annotation.Job;
-import com.chaikasv.tasksystem.taskrunner.model.TaskInfo;
+import com.chaikasv.tasksystem.taskrunner.tasks.TaskInfo;
+import com.chaikasv.tasksystem.taskrunner.repository.ScheduleRepository;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
@@ -31,8 +32,11 @@ public class TaskRegistry {
 
     private static final Logger log = LoggerFactory.getLogger(TaskRegistry.class);
 
-    public TaskRegistry(ApplicationContext ctx) {
+    private final ScheduleRepository scheduleRepository;
+
+    public TaskRegistry(ApplicationContext ctx, ScheduleRepository scheduleRepository) {
         this.ctx = ctx;
+        this.scheduleRepository = scheduleRepository;
     }
 
     @PostConstruct
@@ -65,13 +69,15 @@ public class TaskRegistry {
                 if (ann != null) {
                     String name = ann.name().isEmpty() ? method.getName() : ann.name();
                     String desc = ann.description();
+                    String cron = scheduleRepository.findCronByTaskName(name);
+
                     // optional: проверка на дублирующиеся имена
                     if (tasks.containsKey(name)) {
                         throw new IllegalStateException("Duplicate job name detected: " + name);
                     }
                     // метод может быть приватным — сделаем доступным
                     method.setAccessible(true);
-                    TaskInfo ti = new TaskInfo(name, desc, bean, method);
+                    TaskInfo ti = new TaskInfo(name, desc, bean, method, cron);
                     tasks.put(name, ti);
                     log.info("[TaskRegistry] Registered job: {}", ti);
                 }
@@ -84,8 +90,8 @@ public class TaskRegistry {
         return Optional.ofNullable(tasks.get(name));
     }
 
-    public Collection<TaskInfo> getAll() {
-        return Collections.unmodifiableCollection(tasks.values());
+    public Map<String, TaskInfo> getAll() {
+        return tasks;
     }
 
 }

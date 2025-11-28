@@ -1,4 +1,4 @@
-package com.chaikasv.tasksystem.taskrunner.model;
+package com.chaikasv.tasksystem.taskrunner.tasks;
 
 import java.lang.reflect.Method;
 import java.util.Objects;
@@ -13,18 +13,21 @@ public class TaskInfo {
     private final String description;
     private final Object bean;
     private final Method method;
+    private final String cron;
 
-    public TaskInfo(String name, String description, Object bean, Method method) {
+    public TaskInfo(String name, String description, Object bean, Method method, String cron) {
         this.name = name;
         this.description = description;
         this.bean = bean;
         this.method = method;
+        this.cron = cron;
     }
 
     public String getName() { return name; }
     public String getDescription() { return description; }
     public Object getBean() { return bean; }
     public Method getMethod() { return method; }
+    public String getCron() { return cron; }
 
     @Override
     public String toString() {
@@ -32,6 +35,7 @@ public class TaskInfo {
                 "name='" + name + '\'' +
                 ", bean=" + bean.getClass().getName() +
                 ", method=" + method.getName() +
+                ", cron=" + cron +
                 '}';
     }
 

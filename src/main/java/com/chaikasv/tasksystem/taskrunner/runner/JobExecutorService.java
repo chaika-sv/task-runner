@@ -1,21 +1,19 @@
-package com.chaikasv.tasksystem.taskrunner.runner.service;
+package com.chaikasv.tasksystem.taskrunner.runner;
 
-import com.chaikasv.tasksystem.taskrunner.model.TaskInfo;
+import com.chaikasv.tasksystem.taskrunner.tasks.TaskInfo;
 import com.chaikasv.tasksystem.taskrunner.registry.TaskRegistry;
+import com.chaikasv.tasksystem.taskrunner.tasks.TaskInfoDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.stream.Collectors;
 
 /**
  * Выполняет зарегистрированные задачи из TaskRegistry.
@@ -122,10 +120,27 @@ public class JobExecutorService {
         log.info("[JobExecutor] Пул потоков остановлен");
     }
 
-    public Map<String, String> getRegistrySnapshot() {
-        return registry.getAll()
-                .stream()
-                .collect(Collectors.toMap(TaskInfo::getName, TaskInfo::getDescription));
+//    public Map<String, String> getRegistrySnapshot() {
+//        return registry.getAll()
+//                .stream()
+//                .collect(Collectors.toMap(TaskInfo::getName, TaskInfo::getDescription));
+//    }
+
+    public List<TaskInfoDto> getRegistrySnapshot() {
+        Map<String, TaskInfo> jobs = registry.getAll();
+        List<TaskInfoDto> list = new ArrayList<>();
+
+        for (Map.Entry<String, TaskInfo> entry : jobs.entrySet()) {
+
+            list.add(new TaskInfoDto(
+                    entry.getKey(),
+                    entry.getValue().getDescription(),
+                    entry.getValue().getCron()
+            ));
+
+        }
+
+        return list;
     }
 
 

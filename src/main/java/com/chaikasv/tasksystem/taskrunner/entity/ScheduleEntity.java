@@ -1,4 +1,4 @@
-package com.chaikasv.tasksystem.taskrunner.scheduler.entity;
+package com.chaikasv.tasksystem.taskrunner.entity;
 
 import jakarta.persistence.*;
 

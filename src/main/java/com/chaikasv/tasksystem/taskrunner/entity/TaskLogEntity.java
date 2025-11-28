@@ -1,4 +1,4 @@
-package com.chaikasv.tasksystem.taskrunner.runner.entity;
+package com.chaikasv.tasksystem.taskrunner.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;

@@ -1,10 +1,10 @@
 package com.chaikasv.tasksystem.taskrunner.aop;
 
 import com.chaikasv.tasksystem.taskrunner.annotation.Job;
-import com.chaikasv.tasksystem.taskrunner.runner.entity.TaskLogEntity;
-import com.chaikasv.tasksystem.taskrunner.runner.repository.TaskLogRepository;
-import com.chaikasv.tasksystem.taskrunner.runner.service.JobExecutorService;
-import com.chaikasv.tasksystem.taskrunner.runner.service.TaskLogFactory;
+import com.chaikasv.tasksystem.taskrunner.entity.TaskLogEntity;
+import com.chaikasv.tasksystem.taskrunner.repository.TaskLogRepository;
+import com.chaikasv.tasksystem.taskrunner.runner.JobExecutorService;
+import com.chaikasv.tasksystem.taskrunner.runner.TaskLogFactory;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.AfterThrowing;
@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.*;
-import java.time.LocalDateTime;
 
 @Aspect
 @Component
